@@ -18,7 +18,8 @@ public class ReactionListener extends ListenerAdapter {
         Member member = event.getMember();
 //        if (msg.getAuthor().equals()
         MessageReaction reaction = event.getReaction();
-        ReactionEmote reactionEmote = reaction.getReactionEmote();
+        ReactionEmote reactionEmote = reaction.getReactionEmote(); // tutaj po nazwie lub id emotki możesz pojechać, możesz potestować na poście i zrobic sobie wyświetlanie id do system.out
+//        System.out.println(reactionEmote.getIdLong()); np tak
         MessageChannel channel = event.getChannel();
         channel.sendMessage("Ktoś dodał emotke!").queue();
     }

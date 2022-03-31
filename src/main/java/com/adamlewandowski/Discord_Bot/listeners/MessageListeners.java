@@ -14,7 +14,7 @@ public class MessageListeners extends ListenerAdapter {
     public void onMessageReceived(MessageReceivedEvent event) {
         Message msg = event.getMessage();
 
-        if (msg.getContentRaw().contains("dzięki")) { // można spróbować zrobić na caseach
+        if (msg.getContentRaw().contains("dzięki")) { // można spróbować zrobić na caseach (Seba) - można zrobić na strategii. Klasa posiadająca słownik dobrych słów, druga złych słów.
             MessageChannel channel = event.getChannel();
             channel.sendMessage("przyznano punkt dobroci!").queue();
         }
