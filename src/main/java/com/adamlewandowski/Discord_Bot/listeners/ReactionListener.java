@@ -7,9 +7,11 @@ import net.dv8tion.jda.api.entities.MessageReaction.ReactionEmote;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.api.events.message.react.MessageReactionRemoveEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import org.springframework.stereotype.Component;
 
 import javax.annotation.Nonnull;
 
+@Component
 public class ReactionListener extends ListenerAdapter {
 
     @Override
@@ -21,7 +23,7 @@ public class ReactionListener extends ListenerAdapter {
         ReactionEmote reactionEmote = reaction.getReactionEmote(); // tutaj po nazwie lub id emotki możesz pojechać, możesz potestować na poście i zrobic sobie wyświetlanie id do system.out
 //        System.out.println(reactionEmote.getIdLong()); np tak
         MessageChannel channel = event.getChannel();
-        channel.sendMessage("Ktoś dodał emotke!").queue();
+        channel.sendMessage(member + "dodał emotke!").queue();
     }
 
     @Override
