@@ -21,4 +21,12 @@ public class DiscordUser {
 
     @Setter
     private Integer points;
+
+    public void addPoints(Integer newPoints) {
+        points += newPoints;
+    }
+
+    public void subtractPoints(Integer newPoints) {
+        points -= newPoints;
+    }
 }

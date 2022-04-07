@@ -3,6 +3,7 @@ package com.adamlewandowski.Discord_Bot.service;
 import com.adamlewandowski.Discord_Bot.configuration.DiscordBotConfiguration;
 import com.adamlewandowski.Discord_Bot.listeners.MessageListeners;
 import com.adamlewandowski.Discord_Bot.listeners.ReactionListener;
+import com.adamlewandowski.Discord_Bot.listeners.ReplyListener;
 import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.OnlineStatus;
@@ -17,6 +18,7 @@ import javax.security.auth.login.LoginException;
 public class DiscordBotService {
     private final MessageListeners messageListeners;
     private final ReactionListener reactionListener;
+    private final ReplyListener replyListener;
 
     private final DiscordBotConfiguration discordBotConfiguration;
 
@@ -27,6 +29,7 @@ public class DiscordBotService {
                 .setStatus(OnlineStatus.ONLINE)
                 .addEventListeners(messageListeners)
                 .addEventListeners(reactionListener)
+                .addEventListeners(replyListener)
                 .build();
     }
 }
