@@ -1,5 +1,6 @@
 package com.adamlewandowski.Discord_Bot.listeners;
 
+import com.adamlewandowski.Discord_Bot.configuration.DiscordBotConfiguration;
 import com.adamlewandowski.Discord_Bot.model.DiscordUser;
 import com.adamlewandowski.Discord_Bot.model.dto.DiscordPointsDto;
 import com.adamlewandowski.Discord_Bot.persistance.DiscordPointsRepository;
@@ -7,6 +8,7 @@ import com.adamlewandowski.Discord_Bot.service.PointsCalculator;
 import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.MessageChannel;
+import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.springframework.stereotype.Component;
@@ -20,6 +22,7 @@ import java.util.Optional;
 public class MessageListeners extends ListenerAdapter {
     private final DiscordPointsRepository discordPointsRepository;
     private final PointsCalculator pointsCalculator;
+    private final DiscordBotConfiguration discordBotConfiguration;
 
     @Override
     public void onMessageReceived(MessageReceivedEvent event) {
@@ -28,7 +31,7 @@ public class MessageListeners extends ListenerAdapter {
             return;
         }
         checkMessageForGoodAndBadWords(event);
-        checkAdminComands(event);
+        checkAdminCommands(event);
         checkPing(event);
         checkMyPoints(event);
         checkTopLists(event);
@@ -85,16 +88,19 @@ public class MessageListeners extends ListenerAdapter {
         }
     }
 
-    private void checkAdminComands(MessageReceivedEvent event) {
+    private void checkAdminCommands(MessageReceivedEvent event) {
         Member member = event.getMember();
-        Long userDiscordId = member.getIdLong(); // trzeba będzie utworzyć liste id adminów
+        List<Role> roles = member.getRoles();
         String message = event.getMessage().getContentRaw();
-        if (isAdminId(userDiscordId)) {
-            if (message.contains("/addpoint")) {
-                changeUserPoints(message, true);
-            }
-            if (message.contains("/subpoint")) {
-                changeUserPoints(message, false);
+        for (String role : discordBotConfiguration.getAuthorizedRoles()) {
+            if (roles.toString().contains(role)) {
+                if (message.contains("/addpoint")) {
+                    changeUserPoints(message, true);
+                }
+                if (message.contains("/subpoint")) {
+                    changeUserPoints(message, false);
+                }
+                System.out.println("Authorized");
             }
         }
     }
@@ -111,10 +117,6 @@ public class MessageListeners extends ListenerAdapter {
             discordUser.subtractPoints(userPointsFromAdmin);
         }
         discordPointsRepository.save(discordUser);
-    }
-
-    private boolean isAdminId(Long userDiscordId) {
-        return discordPointsRepository.findByUserId(userDiscordId).isPresent(); // tu trzeba będzie dać odwołanie do tabeli z adminami
     }
 
     private void checkMessageForGoodAndBadWords(MessageReceivedEvent event) {
