@@ -5,7 +5,9 @@ import com.adamlewandowski.Discord_Bot.model.DiscordUser;
 import com.adamlewandowski.Discord_Bot.model.dto.DiscordPointsDto;
 import com.adamlewandowski.Discord_Bot.persistance.DiscordPointsRepository;
 import com.adamlewandowski.Discord_Bot.service.PointsCalculator;
+import com.adamlewandowski.Discord_Bot.service.RankPngGenerator;
 import lombok.RequiredArgsConstructor;
+import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.Role;
@@ -13,7 +15,12 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.springframework.stereotype.Component;
 
+import javax.imageio.ImageIO;
 import javax.persistence.EntityNotFoundException;
+import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 
@@ -23,6 +30,7 @@ public class MessageListeners extends ListenerAdapter {
     private final DiscordPointsRepository discordPointsRepository;
     private final PointsCalculator pointsCalculator;
     private final DiscordBotConfiguration discordBotConfiguration;
+    private final RankPngGenerator rankPngGenerator;
 
     @Override
     public void onMessageReceived(MessageReceivedEvent event) {
@@ -34,18 +42,19 @@ public class MessageListeners extends ListenerAdapter {
         checkAdminCommands(event);
         checkPing(event);
         checkMyPoints(event);
+        checkMyRep(event);
         checkTopLists(event);
-        addPointFromUserToUser(event);
+//        addPointFromUserToUser(event);
     }
 
-    private void addPointFromUserToUser(MessageReceivedEvent event) {
-        String message = event.getMessage().getContentRaw();
-        MessageChannel channel = event.getChannel();
-        if (message.equals("+")) {
-            channel.sendMessage("" + event.getResponseNumber())
-                    .queue();
-        }
-    }
+//    private void addPointFromUserToUser(MessageReceivedEvent event) {
+//        String message = event.getMessage().getContentRaw();
+//        MessageChannel channel = event.getChannel();
+//        if (message.equals("+")) {
+//            channel.sendMessage("" + event.getResponseNumber())
+//                    .queue();
+//        }
+//    }
 
     private void checkTopLists(MessageReceivedEvent event) {
         String message = event.getMessage().getContentRaw();
@@ -63,14 +72,14 @@ public class MessageListeners extends ListenerAdapter {
         Integer numberOfUsers = Integer.parseInt(splitString[1]);
         List<DiscordUser> usersList;
         if (sort.equals("desc")) {
-            usersList = discordPointsRepository.findUsersWithBestReputation(numberOfUsers); // nie wiem jak przekazać Sort.Direction do psql, nie moge sobie ztym poradzic
+            usersList = discordPointsRepository.findUsersWithBestReputation(numberOfUsers);
         } else {
             usersList = discordPointsRepository.findUsersWithWorstReputation(numberOfUsers);
         }
         List<DiscordPointsDto> discordPointsDtos = usersList.stream()
                 .map(p -> new DiscordPointsDto(p.getUserName(), p.getPoints()))
                 .toList();
-        channel.sendMessage(String.format(discordPointsDtos.toString())).queue();
+        channel.sendMessage(discordPointsDtos.toString()).queue();
     }
 
     private void checkMyPoints(MessageReceivedEvent event) {
@@ -85,6 +94,31 @@ public class MessageListeners extends ListenerAdapter {
                 currentPoints = byUserName.get().getPoints();
             }
             channel.sendMessage(String.format("You currently have %s points!", currentPoints)).queue();
+        }
+    }
+
+    private void checkMyRep(MessageReceivedEvent event)  {
+        Member member = event.getMember();
+        String effectiveName = member.getEffectiveName();
+        String avatarUrl = member.getEffectiveAvatarUrl();
+        Long userDiscordId = member.getIdLong();
+        String message = event.getMessage().getContentRaw();
+        MessageChannel channel = event.getChannel();
+        Integer currentPoints;
+        Long userRank;
+        File file = null;
+        if (message.contains("/rank")) {
+            Optional<DiscordUser> byUserName = discordPointsRepository.findByUserId(userDiscordId);
+            if (byUserName.isPresent()) {
+                currentPoints = byUserName.get().getPoints();
+                userRank = discordPointsRepository.getUserRank(currentPoints);
+                try {
+                    file = rankPngGenerator.loadImageAndAddText(effectiveName, avatarUrl, userRank, currentPoints);
+                } catch (IOException e){
+                    e.getMessage();
+                }
+                channel.sendMessage(" ").addFile(file).queue();
+            }
         }
     }
 

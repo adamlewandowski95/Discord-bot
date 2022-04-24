@@ -20,5 +20,6 @@ public interface DiscordPointsRepository extends JpaRepository<DiscordUser, Long
     @Query(value = "select * from discord order by points asc limit :limit", nativeQuery = true)
     List<DiscordUser> findUsersWithWorstReputation(@Param("limit")Integer limit);
 
-
+    @Query(value = "select count(id) + 1 from discord where points > :userPoints", nativeQuery = true)
+    Long getUserRank(@Param("userPoints")Integer userPoints);
 }
