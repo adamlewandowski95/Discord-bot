@@ -15,19 +15,17 @@ public class RankPngGenerator {
     private String path = "src/main/resources";
     private String defaultFile = "/discord_user_rank.png";
     private String editedFile = "/discord_user_rank_edited.png";
-
+    private File f = new File(path);
+    private String absolutePath = f.getAbsolutePath();
+    private File file = new File(absolutePath + defaultFile);
+    private File fileEdited = new File(absolutePath + editedFile);
+    private Font fontDetail = new Font("Arial", Font.CENTER_BASELINE, 12);
+    private Font fontHead = new Font("Arial", Font.CENTER_BASELINE, 20);
 
     public File loadImageAndAddText(String name, String avatarUrl, Long rank, Integer points) throws IOException {
-        File f = new File(path);
-        String absolutePath = f.getAbsolutePath();
-
-        File file = new File(absolutePath + defaultFile);
-        File fileEdited = new File(absolutePath + editedFile);
         BufferedImage avatarBufferedImage = ImageIO.read(new URL(avatarUrl));
         BufferedImage avatarRounded = makeRoundedAvatar(avatarBufferedImage);
         Image avatar = avatarRounded.getScaledInstance(110, 110, 0);
-        Font fontDetail = new Font("Arial", Font.CENTER_BASELINE, 12);
-        Font fontHead = new Font("Arial", Font.CENTER_BASELINE, 20);
 
         BufferedImage bufferedImage = ImageIO.read(file);
         Graphics g = bufferedImage.getGraphics();
@@ -42,7 +40,6 @@ public class RankPngGenerator {
         g.drawString(String.format("Total: #%s", points), 160, 90);
         g.dispose();
         ImageIO.write(bufferedImage, "png", fileEdited);
-
         return fileEdited;
     }
 
