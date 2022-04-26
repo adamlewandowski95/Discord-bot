@@ -19,25 +19,26 @@ public class RankPngGenerator {
     private String absolutePath = f.getAbsolutePath();
     private File file = new File(absolutePath + defaultFile);
     private File fileEdited = new File(absolutePath + editedFile);
-    private Font fontDetail = new Font("Arial", Font.CENTER_BASELINE, 12);
-    private Font fontHead = new Font("Arial", Font.CENTER_BASELINE, 20);
+    private Font fontDetail = new Font("Arial", Font.PLAIN, 15);
+    private Font fontHead = new Font("Arial", Font.BOLD, 22);
 
     public File loadImageAndAddText(String name, String avatarUrl, Long rank, Integer points) throws IOException {
         BufferedImage avatarBufferedImage = ImageIO.read(new URL(avatarUrl));
         BufferedImage avatarRounded = makeRoundedAvatar(avatarBufferedImage);
-        Image avatar = avatarRounded.getScaledInstance(110, 110, 0);
+        Image avatar = avatarRounded.getScaledInstance(110, 110, 50);
 
         BufferedImage bufferedImage = ImageIO.read(file);
-        Graphics g = bufferedImage.getGraphics();
+        Graphics2D g = bufferedImage.createGraphics();
         g.setFont(fontHead);
         g.setColor(Color.BLACK);
+        g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
         g.drawString(String.format("%s", name), 160, 30);
-        g.drawImage(avatar, 25, 25, null);
+        g.drawImage(avatar, 26, 25, null);
 
         g.setFont(fontDetail);
-        g.setColor(Color.GRAY);
+        g.setColor(Color.BLACK);
         g.drawString(String.format("Rank: #%s", rank), 160, 60);
-        g.drawString(String.format("Total: #%s", points), 160, 90);
+        g.drawString(String.format("Points: #%s", points), 160, 90);
         g.dispose();
         ImageIO.write(bufferedImage, "png", fileEdited);
         return fileEdited;
@@ -46,7 +47,7 @@ public class RankPngGenerator {
     public static BufferedImage makeRoundedAvatar(BufferedImage image) {
         int w = image.getWidth();
         int h = image.getHeight();
-        int cornerRadius = 500;
+        int cornerRadius = 300;
         BufferedImage output = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
 
         Graphics2D g2 = output.createGraphics();
