@@ -25,7 +25,7 @@ public class DiscordBotService {
     @PostConstruct
     public void init() throws LoginException {
         JDABuilder.createDefault(discordBotConfiguration.getToken())
-                .setActivity(Activity.watching("Watching You!"))
+                .setActivity(Activity.watching("You!"))
                 .setStatus(OnlineStatus.ONLINE)
                 .addEventListeners(messageListeners)
                 .addEventListeners(reactionListener)
