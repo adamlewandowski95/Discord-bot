@@ -10,7 +10,7 @@ import javax.persistence.*;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class DiscordUser {
+public class DiscordUserPoints {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -20,13 +20,13 @@ public class DiscordUser {
     private Long userId;
 
     @Setter
-    private Integer points;
+    private Integer allPoints;
 
     public void addPoints(Integer newPoints) {
-        points += newPoints;
+        allPoints += newPoints;
     }
 
     public void subtractPoints(Integer newPoints) {
-        points -= newPoints;
+        allPoints -= newPoints;
     }
 }

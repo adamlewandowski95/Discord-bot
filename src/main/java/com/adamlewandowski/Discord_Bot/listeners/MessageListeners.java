@@ -1,13 +1,14 @@
 package com.adamlewandowski.Discord_Bot.listeners;
 
 import com.adamlewandowski.Discord_Bot.configuration.DiscordBotConfiguration;
-import com.adamlewandowski.Discord_Bot.model.DiscordUser;
+import com.adamlewandowski.Discord_Bot.model.DiscordLogPoints;
+import com.adamlewandowski.Discord_Bot.model.DiscordUserPoints;
 import com.adamlewandowski.Discord_Bot.model.dto.DiscordPointsDto;
+import com.adamlewandowski.Discord_Bot.persistance.DiscordLogRepository;
 import com.adamlewandowski.Discord_Bot.persistance.DiscordPointsRepository;
 import com.adamlewandowski.Discord_Bot.service.PointsCalculator;
 import com.adamlewandowski.Discord_Bot.service.RankPngGenerator;
 import lombok.RequiredArgsConstructor;
-import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.Role;
@@ -15,12 +16,10 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.springframework.stereotype.Component;
 
-import javax.imageio.ImageIO;
 import javax.persistence.EntityNotFoundException;
-import java.awt.*;
-import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.sql.Timestamp;
 import java.util.List;
 import java.util.Optional;
 
@@ -28,6 +27,7 @@ import java.util.Optional;
 @Component
 public class MessageListeners extends ListenerAdapter {
     private final DiscordPointsRepository discordPointsRepository;
+    private final DiscordLogRepository discordLogRepository;
     private final PointsCalculator pointsCalculator;
     private final DiscordBotConfiguration discordBotConfiguration;
     private final RankPngGenerator rankPngGenerator;
@@ -70,14 +70,14 @@ public class MessageListeners extends ListenerAdapter {
         MessageChannel channel = event.getChannel();
         String[] splitString = message.split(" ");
         Integer numberOfUsers = Integer.parseInt(splitString[1]);
-        List<DiscordUser> usersList;
+        List<DiscordUserPoints> usersList;
         if (sort.equals("desc")) {
             usersList = discordPointsRepository.findUsersWithBestReputation(numberOfUsers);
         } else {
             usersList = discordPointsRepository.findUsersWithWorstReputation(numberOfUsers);
         }
         List<DiscordPointsDto> discordPointsDtos = usersList.stream()
-                .map(p -> new DiscordPointsDto(p.getUserName(), p.getPoints()))
+                .map(p -> new DiscordPointsDto(p.getUserName(), p.getAllPoints()))
                 .toList();
         channel.sendMessage(discordPointsDtos.toString()).queue();
     }
@@ -89,15 +89,15 @@ public class MessageListeners extends ListenerAdapter {
         MessageChannel channel = event.getChannel();
         Integer currentPoints = 0;
         if (message.contains("/me")) {
-            Optional<DiscordUser> byUserName = discordPointsRepository.findByUserId(userDiscordId);
+            Optional<DiscordUserPoints> byUserName = discordPointsRepository.findByUserId(userDiscordId);
             if (byUserName.isPresent()) {
-                currentPoints = byUserName.get().getPoints();
+                currentPoints = byUserName.get().getAllPoints();
             }
             channel.sendMessage(String.format("You currently have %s points!", currentPoints)).queue();
         }
     }
 
-    private void checkMyRep(MessageReceivedEvent event)  {
+    private void checkMyRep(MessageReceivedEvent event) {
         Member member = event.getMember();
         String effectiveName = member.getEffectiveName();
         String avatarUrl = member.getEffectiveAvatarUrl();
@@ -108,13 +108,13 @@ public class MessageListeners extends ListenerAdapter {
         Long userRank;
         File file = null;
         if (message.contains("/rank")) {
-            Optional<DiscordUser> byUserName = discordPointsRepository.findByUserId(userDiscordId);
+            Optional<DiscordUserPoints> byUserName = discordPointsRepository.findByUserId(userDiscordId);
             if (byUserName.isPresent()) {
-                currentPoints = byUserName.get().getPoints();
+                currentPoints = byUserName.get().getAllPoints();
                 userRank = discordPointsRepository.getUserRank(currentPoints);
                 try {
                     file = rankPngGenerator.loadImageAndAddText(effectiveName, avatarUrl, userRank, currentPoints);
-                } catch (IOException e){
+                } catch (IOException e) {
                     e.getMessage();
                 }
                 channel.sendMessage(" ").addFile(file).queue();
@@ -122,6 +122,7 @@ public class MessageListeners extends ListenerAdapter {
         }
     }
 
+    // to powinno dodawać wpis do logów
     private void checkAdminCommands(MessageReceivedEvent event) {
         Member member = event.getMember();
         List<Role> roles = member.getRoles();
@@ -143,14 +144,29 @@ public class MessageListeners extends ListenerAdapter {
         String[] splitString = message.split(" ");
         String userName = splitString[1];
         int userPointsFromAdmin = Integer.parseInt(splitString[2]);
-        Optional<DiscordUser> byUserName = discordPointsRepository.findByUserName(userName);
-        DiscordUser discordUser = byUserName.orElseThrow(() -> new EntityNotFoundException("Bad username or user is not in Db (he should write a message at least once)"));
-        if (isPositivePoints) {
-            discordUser.addPoints(userPointsFromAdmin);
-        } else {
-            discordUser.subtractPoints(userPointsFromAdmin);
+
+        Optional<DiscordUserPoints> byUserName = discordPointsRepository.findByUserName(userName);
+        if (byUserName.isPresent()) {
+            DiscordUserPoints discordUserPoints = byUserName.orElseThrow(() ->
+                    new EntityNotFoundException("Bad username or user is not in Db (he should write a message at least once)"));
+            if (isPositivePoints) {
+
+//                discordUserPoints.addPoints(userPointsFromAdmin);
+            } else {
+                userPointsFromAdmin = userPointsFromAdmin * (-1);
+//                discordUserPoints.subtractPoints(userPointsFromAdmin);
+            }
+            DiscordLogPoints discordLogPoints = DiscordLogPoints.builder()
+                    .userId(discordUserPoints.getUserId())
+                    .userName(discordUserPoints.getUserName())
+                    .points(userPointsFromAdmin)
+                    .date(new Timestamp(System.currentTimeMillis()))
+                    .build();
+
+            discordLogRepository.save(discordLogPoints);
+
+//            discordPointsRepository.save(discordUserPoints);
         }
-        discordPointsRepository.save(discordUser);
     }
 
     private void checkMessageForGoodAndBadWords(MessageReceivedEvent event) {
@@ -158,16 +174,37 @@ public class MessageListeners extends ListenerAdapter {
         Long userDiscordId = member.getIdLong();
         String message = event.getMessage().getContentRaw().toLowerCase();
 
-        Optional<DiscordUser> userFromRepo = discordPointsRepository.findByUserId(userDiscordId);
-        DiscordUser discordUser = userFromRepo.orElseGet(() -> DiscordUser.builder()
-                .userId(userDiscordId)
-                .userName(member.getEffectiveName())
-                .points(0)
-                .build());
+        // To powinno być w metodzie podliczającej punkty chyba z discord log do discord points
+        Optional<DiscordUserPoints> userFromRepo = discordPointsRepository.findByUserId(userDiscordId);
+        if(!userFromRepo.isPresent()){
+            DiscordUserPoints newDiscordUser = DiscordUserPoints.builder()
+                    .userId(userDiscordId)
+                    .userName(member.getEffectiveName())
+                    .allPoints(0)
+                    .build();
+
+            discordPointsRepository.save(newDiscordUser);
+//            DiscordUserPoints discordUserPoints = userFromRepo.orElseGet(() -> DiscordUserPoints.builder()
+//                    .userId(userDiscordId)
+//                    .userName(member.getEffectiveName())
+//                    .allPoints(0)
+//                    .build());
+        }
+        // %%%%%%%%%%%%%%%%
 
         Integer pointsForMessage = pointsCalculator.checkPointsForMessage(message);
-        discordUser.addPoints(pointsForMessage);
-        discordPointsRepository.save(discordUser);
+//        discordUserPoints.addPoints(pointsForMessage);
+//        discordPointsRepository.save(discordUserPoints);
+        if (pointsForMessage != 0) {
+            DiscordLogPoints discordLogPoints = DiscordLogPoints.builder()
+                    .userId(userDiscordId)
+                    .userName(member.getEffectiveName())
+                    .points(pointsForMessage)
+                    .date(new Timestamp(System.currentTimeMillis()))
+                    .build();
+
+            discordLogRepository.save(discordLogPoints);
+        }
     }
 
     private void checkPing(MessageReceivedEvent event) {

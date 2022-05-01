@@ -1,6 +1,6 @@
 package com.adamlewandowski.Discord_Bot.listeners;
 
-import com.adamlewandowski.Discord_Bot.model.DiscordUser;
+import com.adamlewandowski.Discord_Bot.model.DiscordUserPoints;
 import com.adamlewandowski.Discord_Bot.persistance.DiscordPointsRepository;
 import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.entities.*;
@@ -46,11 +46,11 @@ public class ReactionListener extends ListenerAdapter {
     }
 
     private void modifyAuthorPoints(String action, User author) {
-        Optional<DiscordUser> authorFromDb = discordPointsRepository.findByUserId(Long.parseLong(author.getId()));
-        DiscordUser messageAuthor = authorFromDb.orElseGet(() -> DiscordUser.builder()
+        Optional<DiscordUserPoints> authorFromDb = discordPointsRepository.findByUserId(Long.parseLong(author.getId()));
+        DiscordUserPoints messageAuthor = authorFromDb.orElseGet(() -> DiscordUserPoints.builder()
                 .userId(Long.parseLong(author.getId()))
                 .userName(author.getName())
-                .points(0)
+                .allPoints(0)
                 .build());
         if (action.equals("add")) {
             messageAuthor.addPoints(1);
