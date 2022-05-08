@@ -5,6 +5,7 @@ import lombok.Getter;
 
 import javax.persistence.*;
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "DISCLOG")
@@ -22,5 +23,5 @@ public class DiscordLogPoints {
 
     private Integer points;
 
-    private Timestamp date;
+    private LocalDateTime date;
 }

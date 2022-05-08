@@ -36,7 +36,7 @@ public class PointsCalculator {
         return finalPoints;
     }
 
-    @Scheduled(fixedRate = ONE_MINUTE_IN_MILLISECONDS)
+    @Scheduled(fixedRate = FIFTEEN_MINUTES_IN_MILLISECONDS)
     private void updateWordsMap(){
         List<DictionaryDao> dictionaryDaos = dictionaryRepository.findAll();
         dictionaryDaos.forEach(p -> wordMap.putIfAbsent(p.getWord(), p.getPower()));

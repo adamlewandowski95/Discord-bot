@@ -1,7 +1,7 @@
 package com.adamlewandowski.Discord_Bot.listeners;
 
 import com.adamlewandowski.Discord_Bot.model.DiscordUserPoints;
-import com.adamlewandowski.Discord_Bot.persistance.DiscordPointsRepository;
+import com.adamlewandowski.Discord_Bot.persistance.DiscordUserRepository;
 import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.entities.MessageReaction.ReactionEmote;
@@ -18,7 +18,7 @@ import java.util.Optional;
 @Component
 @RequiredArgsConstructor
 public class ReactionListener extends ListenerAdapter {
-    private final DiscordPointsRepository discordPointsRepository;
+    private final DiscordUserRepository discordUserRepository;
 
     @Override
     public void onMessageReactionAdd(@Nonnull MessageReactionAddEvent event) {
@@ -46,7 +46,7 @@ public class ReactionListener extends ListenerAdapter {
     }
 
     private void modifyAuthorPoints(String action, User author) {
-        Optional<DiscordUserPoints> authorFromDb = discordPointsRepository.findByUserId(Long.parseLong(author.getId()));
+        Optional<DiscordUserPoints> authorFromDb = discordUserRepository.findByUserId(Long.parseLong(author.getId()));
         DiscordUserPoints messageAuthor = authorFromDb.orElseGet(() -> DiscordUserPoints.builder()
                 .userId(Long.parseLong(author.getId()))
                 .userName(author.getName())
@@ -57,6 +57,6 @@ public class ReactionListener extends ListenerAdapter {
         } else {
             messageAuthor.subtractPoints(1);
         }
-        discordPointsRepository.save(messageAuthor);
+        discordUserRepository.save(messageAuthor);
     }
 }

@@ -6,6 +6,6 @@ import org.springframework.data.jpa.repository.Query;
 
 public interface DiscordLogRepository extends JpaRepository<DiscordLogPoints, Long> {
 
-    @Query("update discord set all_points = (select sum(points) from disclog where user_id = :userDiscordId) where user_id = :userDiscordId")
-    public void updateUserPoints(Long userDiscordId);
+//    @Query("update discord set all_points = (select sum(points) from disclog where user_id = :userDiscordId) where user_id = :userDiscordId")
+//    public void updateUserPoints(Long userDiscordId);
 }

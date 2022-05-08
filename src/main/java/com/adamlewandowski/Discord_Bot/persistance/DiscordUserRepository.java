@@ -8,18 +8,18 @@ import org.springframework.data.repository.query.Param;
 import java.util.List;
 import java.util.Optional;
 
-public interface DiscordPointsRepository extends JpaRepository<DiscordUserPoints, Long> {
+public interface DiscordUserRepository extends JpaRepository<DiscordUserPoints, Long> {
 
     Optional<DiscordUserPoints> findByUserId(Long userId);
 
     Optional<DiscordUserPoints> findByUserName(String userName);
 
-    @Query(value = "select * from discord order by points desc limit :limit", nativeQuery = true)
+    @Query(value = "select * from discord order by all_points desc limit :limit", nativeQuery = true)
     List<DiscordUserPoints> findUsersWithBestReputation(@Param("limit")Integer limit);
 
-    @Query(value = "select * from discord order by points asc limit :limit", nativeQuery = true)
+    @Query(value = "select * from discord order by all_points asc limit :limit", nativeQuery = true)
     List<DiscordUserPoints> findUsersWithWorstReputation(@Param("limit")Integer limit);
 
-    @Query(value = "select count(id) + 1 from discord where points > :userPoints", nativeQuery = true)
+    @Query(value = "select count(id) + 1 from discord where all_points > :userPoints", nativeQuery = true)
     Long getUserRank(@Param("userPoints")Integer userPoints);
 }
