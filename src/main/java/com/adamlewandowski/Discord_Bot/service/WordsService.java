@@ -36,7 +36,7 @@ public class WordsService {
         Integer pointsForMessage = pointsCalculator.checkPointsForMessage(message);
 
         if (pointsForMessage > 0 && dailyLogRepository.findOneByUserId(userDiscordId).isPresent()) {
-            LocalDateTime dateOfLastUserPost = dailyLogRepository.getDateOfLastUserPost(userDiscordId);
+            LocalDateTime dateOfLastUserPost = dailyLogRepository.getDateOfLastPositiveUserPoints(userDiscordId);
             if (LocalDateTime.now().isBefore(dateOfLastUserPost.plusMinutes(15))) {
                 return;
             }

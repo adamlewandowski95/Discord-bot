@@ -10,7 +10,7 @@ import javax.persistence.*;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class User {
+public class CasperUser {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -23,12 +23,4 @@ public class User {
 
     @Setter
     private Integer allPoints;
-
-    public void addPoints(Integer newPoints) {
-        allPoints += newPoints;
-    }
-
-    public void subtractPoints(Integer newPoints) {
-        allPoints -= newPoints;
-    }
 }

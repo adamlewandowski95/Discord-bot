@@ -1,7 +1,7 @@
 package com.adamlewandowski.Discord_Bot.listeners;
 
-import com.adamlewandowski.Discord_Bot.model.User;
-import com.adamlewandowski.Discord_Bot.persistance.UserRepository;
+import com.adamlewandowski.Discord_Bot.model.DailyPoints;
+import com.adamlewandowski.Discord_Bot.persistance.DailyLogRepository;
 import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.entities.MessageReaction.ReactionEmote;
@@ -13,12 +13,12 @@ import net.dv8tion.jda.api.requests.RestAction;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Nonnull;
-import java.util.Optional;
+import java.time.LocalDateTime;
 
 @Component
 @RequiredArgsConstructor
 public class ReactionListener extends ListenerAdapter {
-    private final UserRepository userRepository;
+    private final DailyLogRepository dailyLogRepository;
 
     @Override
     public void onMessageReactionAdd(@Nonnull MessageReactionAddEvent event) {
@@ -35,7 +35,7 @@ public class ReactionListener extends ListenerAdapter {
         String memberId = member.getId();
         MessageChannel channel = event.getChannel();
         RestAction<Message> messageRestAction = channel.retrieveMessageById(event.getMessageId());
-        net.dv8tion.jda.api.entities.User author = messageRestAction.complete().getAuthor();
+        User author = messageRestAction.complete().getAuthor();
         MessageReaction reaction = event.getReaction();
         ReactionEmote reactionEmote = reaction.getReactionEmote();
         boolean isLikeEmote = reactionEmote.toString().equals("RE:U+1f44d");
@@ -45,18 +45,28 @@ public class ReactionListener extends ListenerAdapter {
         }
     }
 
-    private void modifyAuthorPoints(String action, net.dv8tion.jda.api.entities.User author) {
-        Optional<User> authorFromDb = userRepository.findByDiscordId(Long.parseLong(author.getId()));
-        User messageAuthor = authorFromDb.orElseGet(() -> User.builder()
-                .discordId(Long.parseLong(author.getId()))
-                .email(author.getName())
-                .allPoints(0)
-                .build());
+    //todo sprecyzować kto ma dostac pkt (osoba dajaća lajka czy osoba obdarowana likem)
+    private void modifyAuthorPoints(String action, User author) {
+        int pointsFromLike;
+//        Optional<CasperUser> authorFromDb = userRepository.findByDiscordId(Long.parseLong(author.getId()));
+//        CasperUser messageAuthor = authorFromDb.orElseGet(() -> CasperUser.builder()
+//                .discordId(Long.parseLong(author.getId()))
+//                .email(author.getName())
+//                .allPoints(0)
+//                .build());
+
         if (action.equals("add")) {
-            messageAuthor.addPoints(1);
+            pointsFromLike = 1;
         } else {
-            messageAuthor.subtractPoints(1);
+            pointsFromLike = -1;
         }
-        userRepository.save(messageAuthor);
+
+        DailyPoints dailyPoints = DailyPoints.builder()
+                .userId(author.getIdLong())
+                .userName(author.getName())
+                .points(pointsFromLike)
+                .date(LocalDateTime.now())
+                .build();
+        dailyLogRepository.save(dailyPoints);
     }
 }

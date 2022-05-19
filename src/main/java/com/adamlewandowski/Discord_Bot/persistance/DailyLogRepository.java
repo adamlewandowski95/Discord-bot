@@ -9,8 +9,8 @@ import java.util.Optional;
 
 public interface DailyLogRepository extends JpaRepository<DailyPoints, Long> {
 
-        @Query(value = "select max(date) from disclog where user_id = :userDiscordId", nativeQuery = true)
-        LocalDateTime getDateOfLastUserPost (Long userDiscordId);
+        @Query(value = "select max(date) from disclog where user_id = :userDiscordId and points > 0", nativeQuery = true)
+        LocalDateTime getDateOfLastPositiveUserPoints(Long userDiscordId);
 
         @Query(value = "select * from disclog where user_id = :userDiscordId limit 1", nativeQuery = true)
         Optional<DailyPoints> findOneByUserId(Long userDiscordId);

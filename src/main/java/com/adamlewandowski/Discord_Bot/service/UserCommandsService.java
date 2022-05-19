@@ -1,6 +1,6 @@
 package com.adamlewandowski.Discord_Bot.service;
 
-import com.adamlewandowski.Discord_Bot.model.User;
+import com.adamlewandowski.Discord_Bot.model.CasperUser;
 import com.adamlewandowski.Discord_Bot.model.dto.PointsDto;
 import com.adamlewandowski.Discord_Bot.persistance.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -37,7 +37,7 @@ public class UserCommandsService {
         if(splitString.length != 1){
             numberOfUsers = Integer.parseInt(splitString[1]);
         }
-        List<User> usersList;
+        List<CasperUser> usersList;
         if (message.contains(TOPREP)) {
             usersList = userRepository.findUsersWithBestReputation(numberOfUsers);
         } else {
@@ -60,7 +60,7 @@ public class UserCommandsService {
         Long userRank;
         File file = null;
         if (message.contains("/rank")) {
-            Optional<User> byUserName = userRepository.findByDiscordId(userDiscordId);
+            Optional<CasperUser> byUserName = userRepository.findByDiscordId(userDiscordId);
             if (byUserName.isPresent()) {
                 currentPoints = byUserName.get().getAllPoints();
                 userRank = userRepository.getUserRank(currentPoints);
@@ -81,7 +81,7 @@ public class UserCommandsService {
         MessageChannel channel = event.getChannel();
         Integer currentPoints = 0;
         if (message.contains("/me")) {
-            Optional<User> byUserName = userRepository.findByDiscordId(userDiscordId);
+            Optional<CasperUser> byUserName = userRepository.findByDiscordId(userDiscordId);
             if (byUserName.isPresent()) {
                 currentPoints = byUserName.get().getAllPoints();
             }
