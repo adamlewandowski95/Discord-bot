@@ -1,6 +1,6 @@
 package com.adamlewandowski.Discord_Bot.service;
 
-import com.adamlewandowski.Discord_Bot.configuration.DiscordBotConfiguration;
+import com.adamlewandowski.Discord_Bot.configuration.BotConfiguration;
 import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.entities.Category;
 import net.dv8tion.jda.api.entities.MessageChannel;
@@ -14,7 +14,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class ChannelService {
 
-    private final DiscordBotConfiguration configuration;
+    private final BotConfiguration configuration;
 
     public boolean isChannelListened(MessageReceivedEvent event){
         boolean result = false;

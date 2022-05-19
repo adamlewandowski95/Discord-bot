@@ -10,7 +10,7 @@ import java.util.Map;
 import static java.util.Collections.emptyList;
 
 @Configuration
-public class DiscordBotConfiguration {
+public class BotConfiguration {
 
     //todo // zmienić nazwę bota
     @Getter

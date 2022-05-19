@@ -5,7 +5,7 @@ import lombok.Getter;
 
 @AllArgsConstructor
 @Getter
-public class DiscordPointsDto {
+public class PointsDto {
 
     private String name;
     private long discordPoints;

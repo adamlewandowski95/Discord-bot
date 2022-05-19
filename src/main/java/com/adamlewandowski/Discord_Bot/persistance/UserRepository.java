@@ -1,6 +1,6 @@
 package com.adamlewandowski.Discord_Bot.persistance;
 
-import com.adamlewandowski.Discord_Bot.model.DiscordUserPoints;
+import com.adamlewandowski.Discord_Bot.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -8,17 +8,17 @@ import org.springframework.data.repository.query.Param;
 import java.util.List;
 import java.util.Optional;
 
-public interface DiscordUserRepository extends JpaRepository<DiscordUserPoints, Long> {
+public interface UserRepository extends JpaRepository<User, Long> {
 
-    Optional<DiscordUserPoints> findByUserId(Long userId);
+    Optional<User> findByDiscordId(Long discordId);
 
-    Optional<DiscordUserPoints> findByUserName(String userName);
+    Optional<User> findByEmail(String email);
 
     @Query(value = "select * from discord order by all_points desc limit :limit", nativeQuery = true)
-    List<DiscordUserPoints> findUsersWithBestReputation(@Param("limit")Integer limit);
+    List<User> findUsersWithBestReputation(@Param("limit")Integer limit);
 
     @Query(value = "select * from discord order by all_points asc limit :limit", nativeQuery = true)
-    List<DiscordUserPoints> findUsersWithWorstReputation(@Param("limit")Integer limit);
+    List<User> findUsersWithWorstReputation(@Param("limit")Integer limit);
 
     @Query(value = "select count(id) + 1 from discord where all_points > :userPoints", nativeQuery = true)
     Long getUserRank(@Param("userPoints")Integer userPoints);

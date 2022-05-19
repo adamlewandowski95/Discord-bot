@@ -1,7 +1,9 @@
 package com.adamlewandowski.Discord_Bot.model;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.sql.Timestamp;
@@ -11,7 +13,9 @@ import java.time.LocalDateTime;
 @Table(name = "DISCLOG")
 @Builder
 @Getter
-public class DiscordLogPoints {
+@AllArgsConstructor
+@NoArgsConstructor
+public class DailyPoints {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
