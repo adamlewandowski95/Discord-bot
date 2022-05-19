@@ -1,8 +1,8 @@
 package com.adamlewandowski.Discord_Bot.service;
 
-import com.adamlewandowski.Discord_Bot.model.DiscordUserPoints;
-import com.adamlewandowski.Discord_Bot.model.dto.DiscordPointsDto;
-import com.adamlewandowski.Discord_Bot.persistance.DiscordUserRepository;
+import com.adamlewandowski.Discord_Bot.model.User;
+import com.adamlewandowski.Discord_Bot.model.dto.PointsDto;
+import com.adamlewandowski.Discord_Bot.persistance.UserRepository;
 import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.MessageChannel;
@@ -17,14 +17,14 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 public class UserCommandsService {
-    private static final String bottom = "/bottomrep";
-    private static final String top = "/toprep";
-    private final DiscordUserRepository discordUserRepository;
+    private static final String BOTTOMREP = "/bottomrep";
+    private static final String TOPREP = "/toprep";
+    private final UserRepository userRepository;
     private final RankPngGenerator rankPngGenerator;
 
     public void checkTopLists(MessageReceivedEvent event) {
         String message = event.getMessage().getContentRaw();
-        if (message.contains(bottom) || message.contains(top)) {
+        if (message.contains(BOTTOMREP) || message.contains(TOPREP)) {
             showTopUsers(event);
         }
     }
@@ -34,20 +34,19 @@ public class UserCommandsService {
         MessageChannel channel = event.getChannel();
         String[] splitString = message.split(" ");
         Integer numberOfUsers = 10;
-        //todo zablokować opcje limit 0
         if(splitString.length != 1){
             numberOfUsers = Integer.parseInt(splitString[1]);
         }
-        List<DiscordUserPoints> usersList;
-        if (message.contains(top)) {
-            usersList = discordUserRepository.findUsersWithBestReputation(numberOfUsers);
+        List<User> usersList;
+        if (message.contains(TOPREP)) {
+            usersList = userRepository.findUsersWithBestReputation(numberOfUsers);
         } else {
-            usersList = discordUserRepository.findUsersWithWorstReputation(numberOfUsers);
+            usersList = userRepository.findUsersWithWorstReputation(numberOfUsers);
         }
-        List<DiscordPointsDto> discordPointsDtos = usersList.stream()
-                .map(p -> new DiscordPointsDto(p.getUserName(), p.getAllPoints()))
+        List<PointsDto> pointsDtos = usersList.stream()
+                .map(p -> new PointsDto(p.getEmail(), p.getAllPoints()))
                 .toList();
-        channel.sendMessage(discordPointsDtos.toString()).queue();
+        channel.sendMessage(pointsDtos.toString()).queue();
     }
 
     public void checkMyRep(MessageReceivedEvent event) {
@@ -61,10 +60,10 @@ public class UserCommandsService {
         Long userRank;
         File file = null;
         if (message.contains("/rank")) {
-            Optional<DiscordUserPoints> byUserName = discordUserRepository.findByUserId(userDiscordId);
+            Optional<User> byUserName = userRepository.findByDiscordId(userDiscordId);
             if (byUserName.isPresent()) {
                 currentPoints = byUserName.get().getAllPoints();
-                userRank = discordUserRepository.getUserRank(currentPoints);
+                userRank = userRepository.getUserRank(currentPoints);
                 try {
                     file = rankPngGenerator.loadImageAndAddText(effectiveName, avatarUrl, userRank, currentPoints);
                 } catch (IOException e) {
@@ -82,14 +81,14 @@ public class UserCommandsService {
         MessageChannel channel = event.getChannel();
         Integer currentPoints = 0;
         if (message.contains("/me")) {
-            Optional<DiscordUserPoints> byUserName = discordUserRepository.findByUserId(userDiscordId);
+            Optional<User> byUserName = userRepository.findByDiscordId(userDiscordId);
             if (byUserName.isPresent()) {
                 currentPoints = byUserName.get().getAllPoints();
             }
             channel.sendMessage(String.format("You currently have %s points!", currentPoints)).queue();
         }
     }
-
+//TODO
     //    private void addPointFromUserToUser(MessageReceivedEvent event) {
 //        String message = event.getMessage().getContentRaw();
 //        MessageChannel channel = event.getChannel();

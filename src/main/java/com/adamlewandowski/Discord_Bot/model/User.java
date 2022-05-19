@@ -5,19 +5,21 @@ import lombok.*;
 import javax.persistence.*;
 
 @Entity
-@Table(name = "DISCORD")
+@Table(name = "USERS")
 @Builder
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class DiscordUserPoints {
+public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String userName;
+    private String email;
 
-    private Long userId;
+    private Long discordId;
+
+    private Long telegramId;
 
     @Setter
     private Integer allPoints;

@@ -1,7 +1,7 @@
 package com.adamlewandowski.Discord_Bot.listeners;
 
-import com.adamlewandowski.Discord_Bot.model.DiscordUserPoints;
-import com.adamlewandowski.Discord_Bot.persistance.DiscordUserRepository;
+import com.adamlewandowski.Discord_Bot.model.User;
+import com.adamlewandowski.Discord_Bot.persistance.UserRepository;
 import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.entities.MessageReaction.ReactionEmote;
@@ -18,7 +18,7 @@ import java.util.Optional;
 @Component
 @RequiredArgsConstructor
 public class ReactionListener extends ListenerAdapter {
-    private final DiscordUserRepository discordUserRepository;
+    private final UserRepository userRepository;
 
     @Override
     public void onMessageReactionAdd(@Nonnull MessageReactionAddEvent event) {
@@ -35,7 +35,7 @@ public class ReactionListener extends ListenerAdapter {
         String memberId = member.getId();
         MessageChannel channel = event.getChannel();
         RestAction<Message> messageRestAction = channel.retrieveMessageById(event.getMessageId());
-        User author = messageRestAction.complete().getAuthor();
+        net.dv8tion.jda.api.entities.User author = messageRestAction.complete().getAuthor();
         MessageReaction reaction = event.getReaction();
         ReactionEmote reactionEmote = reaction.getReactionEmote();
         boolean isLikeEmote = reactionEmote.toString().equals("RE:U+1f44d");
@@ -45,11 +45,11 @@ public class ReactionListener extends ListenerAdapter {
         }
     }
 
-    private void modifyAuthorPoints(String action, User author) {
-        Optional<DiscordUserPoints> authorFromDb = discordUserRepository.findByUserId(Long.parseLong(author.getId()));
-        DiscordUserPoints messageAuthor = authorFromDb.orElseGet(() -> DiscordUserPoints.builder()
-                .userId(Long.parseLong(author.getId()))
-                .userName(author.getName())
+    private void modifyAuthorPoints(String action, net.dv8tion.jda.api.entities.User author) {
+        Optional<User> authorFromDb = userRepository.findByDiscordId(Long.parseLong(author.getId()));
+        User messageAuthor = authorFromDb.orElseGet(() -> User.builder()
+                .discordId(Long.parseLong(author.getId()))
+                .email(author.getName())
                 .allPoints(0)
                 .build());
         if (action.equals("add")) {
@@ -57,6 +57,6 @@ public class ReactionListener extends ListenerAdapter {
         } else {
             messageAuthor.subtractPoints(1);
         }
-        discordUserRepository.save(messageAuthor);
+        userRepository.save(messageAuthor);
     }
 }
