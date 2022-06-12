@@ -1,4 +1,4 @@
-package com.adamlewandowski.Discord_Bot.service;
+package com.adamlewandowski.Discord_Bot.service.core;
 
 import com.adamlewandowski.Discord_Bot.configuration.BotConfiguration;
 import lombok.RequiredArgsConstructor;

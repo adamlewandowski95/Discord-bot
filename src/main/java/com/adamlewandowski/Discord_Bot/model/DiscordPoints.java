@@ -6,16 +6,15 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
-import java.sql.Timestamp;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "DISCLOG")
+@Table(name = "DISCORD")
 @Builder
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
-public class DailyPoints {
+public class DiscordPoints {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

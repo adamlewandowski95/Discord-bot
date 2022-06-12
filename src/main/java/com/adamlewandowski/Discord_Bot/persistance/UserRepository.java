@@ -12,8 +12,6 @@ public interface UserRepository extends JpaRepository<CasperUser, Long> {
 
     Optional<CasperUser> findByDiscordId(Long discordId);
 
-    Optional<CasperUser> findByEmail(String email);
-
     @Query(value = "select * from discord order by all_points desc limit :limit", nativeQuery = true)
     List<CasperUser> findUsersWithBestReputation(@Param("limit")Integer limit);
 

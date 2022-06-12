@@ -1,6 +1,6 @@
 package com.adamlewandowski.Discord_Bot.listeners;
 
-import com.adamlewandowski.Discord_Bot.model.DailyPoints;
+import com.adamlewandowski.Discord_Bot.model.DiscordPoints;
 import com.adamlewandowski.Discord_Bot.persistance.DailyLogRepository;
 import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.entities.*;
@@ -61,12 +61,12 @@ public class ReactionListener extends ListenerAdapter {
             pointsFromLike = -1;
         }
 
-        DailyPoints dailyPoints = DailyPoints.builder()
+        DiscordPoints discordPoints = DiscordPoints.builder()
                 .userId(author.getIdLong())
                 .userName(author.getName())
                 .points(pointsFromLike)
                 .date(LocalDateTime.now())
                 .build();
-        dailyLogRepository.save(dailyPoints);
+        dailyLogRepository.save(discordPoints);
     }
 }

@@ -44,7 +44,7 @@ public class UserCommandsService {
             usersList = userRepository.findUsersWithWorstReputation(numberOfUsers);
         }
         List<PointsDto> pointsDtos = usersList.stream()
-                .map(p -> new PointsDto(p.getEmail(), p.getAllPoints()))
+                .map(p -> new PointsDto(p.getEmailAddress(), p.getAllPoints()))
                 .toList();
         channel.sendMessage(pointsDtos.toString()).queue();
     }

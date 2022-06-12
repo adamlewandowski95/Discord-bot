@@ -23,9 +23,11 @@ public class BotConfiguration {
     @Getter
     private List<String> authorizedRoles = List.of("MOD", "Headquarter");
 
+    //Kluczem jest kategoria (obowiązkowa) kluczem jest lista kanalów nasłuchiwanych. Jeżeli jest empty list to nasłuchuje wszystkie
     @Getter
     private Map<String, List<String>> listenedCategories = Map.of( //dokładne nazwy kategorii i kanałów (razem z myślnikami)
             "World", emptyList(),
+            "Text Channels", emptyList(),
             "----OFF - TOPIC----", emptyList(),
             "Casper army", List.of("discussion", "suggestions"));
 

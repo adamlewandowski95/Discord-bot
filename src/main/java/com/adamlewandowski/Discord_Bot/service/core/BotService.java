@@ -17,7 +17,6 @@ import javax.security.auth.login.LoginException;
 public class BotService {
     private final MessageListeners messageListeners;
     private final ReactionListener reactionListener;
-
     private final BotConfiguration botConfiguration;
 
     @PostConstruct

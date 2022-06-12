@@ -1,9 +1,9 @@
 package com.adamlewandowski.Discord_Bot.listeners;
 
 import com.adamlewandowski.Discord_Bot.service.AdminCommandsService;
-import com.adamlewandowski.Discord_Bot.service.ChannelService;
+import com.adamlewandowski.Discord_Bot.service.core.ChannelService;
 import com.adamlewandowski.Discord_Bot.service.UserCommandsService;
-import com.adamlewandowski.Discord_Bot.service.WordsService;
+import com.adamlewandowski.Discord_Bot.service.word.WordsService;
 import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -37,7 +37,6 @@ public class MessageListeners extends ListenerAdapter {
         userCommandsService.checkMyRep(event);
         userCommandsService.checkTopLists(event);
         checkPing(event);
-        //        addPointFromUserToUser(event);
     }
 
     private void checkPing(MessageReceivedEvent event) {

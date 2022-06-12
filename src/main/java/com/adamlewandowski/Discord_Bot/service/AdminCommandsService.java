@@ -1,7 +1,7 @@
 package com.adamlewandowski.Discord_Bot.service;
 
 import com.adamlewandowski.Discord_Bot.configuration.BotConfiguration;
-import com.adamlewandowski.Discord_Bot.model.DailyPoints;
+import com.adamlewandowski.Discord_Bot.model.DiscordPoints;
 import com.adamlewandowski.Discord_Bot.persistance.DailyLogRepository;
 import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.entities.Role;
@@ -37,11 +37,11 @@ public class AdminCommandsService {
         if (message.contains("/subpoint")) {
             userPointsFromAdmin = userPointsFromAdmin * -1;
         }
-        DailyPoints dailyPoints = DailyPoints.builder()
+        DiscordPoints discordPoints = DiscordPoints.builder()
                 .userName(discordMember)
                 .points(userPointsFromAdmin)
                 .date(LocalDateTime.now())
                 .build();
-        dailyLogRepository.save(dailyPoints);
+        dailyLogRepository.save(discordPoints);
     }
 }
