@@ -12,12 +12,12 @@ public interface UserRepository extends JpaRepository<CasperUser, Long> {
 
     Optional<CasperUser> findByDiscordId(Long discordId);
 
-    @Query(value = "select * from discord order by all_points desc limit :limit", nativeQuery = true)
+    @Query(value = "select * from users order by all_points desc limit :limit", nativeQuery = true)
     List<CasperUser> findUsersWithBestReputation(@Param("limit")Integer limit);
 
-    @Query(value = "select * from discord order by all_points asc limit :limit", nativeQuery = true)
+    @Query(value = "select * from users order by all_points asc limit :limit", nativeQuery = true)
     List<CasperUser> findUsersWithWorstReputation(@Param("limit")Integer limit);
 
-    @Query(value = "select count(id) + 1 from discord where all_points > :userPoints", nativeQuery = true)
+    @Query(value = "select count(id) + 1 from users where all_points > :userPoints", nativeQuery = true)
     Long getUserRank(@Param("userPoints")Integer userPoints);
 }
