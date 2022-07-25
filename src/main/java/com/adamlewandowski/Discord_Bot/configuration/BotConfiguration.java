@@ -12,7 +12,6 @@ import static java.util.Collections.emptyList;
 @Configuration
 public class BotConfiguration {
 
-    //todo // zmienić nazwę bota
     @Getter
     private String botName = "Najs Bot";
 
